@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "lsdelta.h": "c"
+    },
+    "cSpell.ignoreWords": [
+        "lsdelta"
+    ]
+}
