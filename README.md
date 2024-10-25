@@ -3,7 +3,7 @@ LSDelta - Least Significant Digit Delta
 
 This is pretty simplistic; it's more of a practice project.
 
-See `lsdelta.h` for documentation.
+See `lsdelta.h` for documentation of the pure C version.
 
 Can be built via the `Makefile`.
 

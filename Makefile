@@ -26,3 +26,15 @@ install: liblsdelta.so lsdelta.h
 
 clean:
 	rm -f liblsdelta.so test_lsdelta
+
+
+.PHONY: py_installdeps py_build py_clean
+
+py_installdeps:
+	pip install --upgrade --upgrade-strategy=eager pip wheel setuptools build
+
+py_build:
+	python -m build --sdist
+
+py_clean:
+	rm -rf dist *.egg-info

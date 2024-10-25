@@ -1,4 +1,7 @@
-.mypy_cache/
+.venv*/
 __pycache__/
+.mypy_cache/
+/dist/
+/*.egg-info/
 /liblsdelta.so
 /test_lsdelta
