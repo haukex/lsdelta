@@ -1,0 +1,27 @@
+name: Build Python Wheels
+on:
+  push:
+    branches:
+      - '**'
+# https://cibuildwheel.pypa.io/en/stable/setup/#github-actions
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # macos-13 is an intel runner, macos-14 is apple silicon
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21.3
+        env:
+          # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
+          CIBW_BUILD: cp*
+          # https://cibuildwheel.pypa.io/en/stable/options/#test-command
+          CIBW_TEST_COMMAND: python -X dev -X warn_default_encoding -W error -m unittest discover -vs {package}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
