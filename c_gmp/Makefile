@@ -15,7 +15,7 @@ all: liblsdelta.so
 liblsdelta.so: lsdelta.c lsdelta.h
 	$(CC) $(local_CFLAGS) $(CFLAGS) -shared -o "$@" -fPIC lsdelta.c
 
-test_lsdelta_tests.inc.c: gen_lsdelta_tests.py lsdelta_tests.json
+test_lsdelta_tests.inc.c: gen_lsdelta_tests.py ../lsdelta_tests.json
 	python gen_lsdelta_tests.py
 
 test_lsdelta: liblsdelta.so test_lsdelta.c test_lsdelta_tests.inc.c
@@ -31,21 +31,3 @@ install: liblsdelta.so lsdelta.h
 
 clean:
 	rm -f liblsdelta.so test_lsdelta
-
-
-.PHONY: py_installdeps py_build py_clean py_test
-
-py_installdeps:
-	pip install --upgrade --upgrade-strategy=eager pip wheel setuptools build
-
-py_build:
-	python -m build --sdist
-
-py_test: py_build
-	python -m venv .venv_test
-	.venv_test/bin/python -m pip install dist/*.tar.gz
-	.venv_test/bin/python py_tests.py
-	rm -r .venv_test
-
-py_clean:
-	rm -rf dist *.egg-info

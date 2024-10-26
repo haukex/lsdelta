@@ -29,7 +29,7 @@ from lsdelta import lsdelta
 # https://stackoverflow.com/a/65710653 ??
 
 def main() -> None:
-    with (Path(__file__).resolve().parent/'lsdelta_tests.json').open(encoding='ASCII') as ifh:
+    with (Path(__file__).resolve().parent.parent/'lsdelta_tests.json').open(encoding='ASCII') as ifh:
         tests = [ t for t in json.load(ifh) if not isinstance(t, str) ]
     for test in tests:
         if isinstance(test, str):
