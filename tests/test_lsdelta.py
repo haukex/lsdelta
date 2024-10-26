@@ -21,6 +21,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see https://www.gnu.org/licenses/
 """
 import json
+import time
+import timeit
 import unittest
 from pathlib import Path
 import lsdelta
@@ -43,3 +45,15 @@ class LSDeltaTestCase(unittest.TestCase):
                     t0 = test[0].encode('ASCII')
                     t1 = test[1].encode('ASCII')
                     self.assertEqual( uut.lsdelta(t0, t1), t2, f"{uut.__name__}.lsdelta({t0!r}, {t1!r}) == {t2!r}" )
+
+    def test_times(self):
+        print()
+        loops = 1000000
+        tm_ns_cp = timeit.Timer('lsdelta("123.45","123.4449")', 'from lsdelta import lsdelta',
+            timer=time.perf_counter_ns).timeit(loops)
+        print(f"lsdelta:    {loops*1e9/tm_ns_cp:12.1f} loops/s")
+        tm_ns_pp = timeit.Timer('lsdelta("123.45","123.4449")', 'from lsdelta_pp import lsdelta',
+            timer=time.perf_counter_ns).timeit(loops)
+        print(f"lsdelta_pp: {loops*1e9/tm_ns_pp:12.1f} loops/s")
+        print(f"C Python is {tm_ns_pp/tm_ns_cp:.1f}x faster than pure Python")
+        # => currently roughly 7x faster
