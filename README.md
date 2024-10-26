@@ -18,6 +18,9 @@ giving you the difference in their least significant digits.
     >>> lsdelta("1035.110", "1035.1")
     10
 
+This exists because it's part of a check I sometimes need to do
+on large datasets, which is why it's implemented in C for speed.
+
 
 Author, Copyright, and License
 ------------------------------
