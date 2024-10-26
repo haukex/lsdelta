@@ -23,6 +23,8 @@
 #include <Python.h>
 #include <stdbool.h>
 
+//#define LSDELTA_DEBUG
+
 bool _get_dec_dig(const char *str, const Py_ssize_t len, Py_ssize_t *cnt) {
 	bool found_dec = false;
 	*cnt = 0;
@@ -142,8 +144,6 @@ static PyMethodDef lsdelta_methods[] = {
     {NULL, NULL, 0, NULL}  // Sentinel
 };
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 static struct PyModuleDef lsdelta_module = {
     PyModuleDef_HEAD_INIT,
     "lsdelta",  // name of module
@@ -151,7 +151,6 @@ static struct PyModuleDef lsdelta_module = {
     -1,         // -1 if the module keeps state in global variables.
     lsdelta_methods
 };
-#pragma GCC diagnostic pop
 
 PyMODINIT_FUNC
 PyInit_lsdelta(void) {
