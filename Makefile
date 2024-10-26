@@ -2,7 +2,7 @@
 # https://www.gnu.org/software/make/manual/make.html
 
 # Adapt these variables for this project:
-py_code_locs = c_gmp/*.py py_c/*.py tests
+py_code_locs = c_gmp/*.py lsdelta_pp lsdelta_ct tests
 # Hint: $(filter-out whatever,$(py_code_locs))
 # Remember to keep in sync with GitHub Actions workflows:
 requirement_txts = dev/requirements.txt

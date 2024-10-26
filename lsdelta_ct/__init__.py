@@ -1,4 +1,4 @@
-"""Python wrapper for ``lsdelta`` C library.
+"""Python Ctypes wrapper for ``lsdelta`` C library.
 
 Author, Copyright, and License
 ------------------------------
@@ -20,24 +20,22 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see https://www.gnu.org/licenses/
 """
-import os
-import ctypes
+#import os
+#import ctypes
 from typing import Union
 
-_clib = ctypes.CDLL(os.environ.get('LSDELTA_LIB', "liblsdelta.so"), use_errno=True)
-
-_lsdelta = _clib.lsdelta
-_lsdelta.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.POINTER(ctypes.c_longlong)]
-_lsdelta.restype = ctypes.c_char
+#_lsdelta = ctypes.CDLL(os.environ.get('LSDELTA_LIB', "liblsdelta.so"), use_errno=True).lsdelta
+#TODO: the return value is now mpz_t instead of long long!
+#_lsdelta.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.POINTER(ctypes.c_longlong)]
+#_lsdelta.restype = ctypes.c_char
 
 def lsdelta(a :Union[str,bytes], b :Union[str,bytes]) -> int:
-    assert isinstance(a, (str,bytes)), type(a)
-    assert isinstance(b, (str,bytes)), type(b)
-    delta = ctypes.c_longlong()
-    rv :bytes = _lsdelta(
-        a.encode('ASCII') if isinstance(a, str) else a,
-        b.encode('ASCII') if isinstance(b, str) else b,
-        delta )
-    if ord(rv):
-        raise RuntimeError(os.strerror(ctypes.get_errno()))
-    return delta.value
+    raise NotImplementedError()
+    #delta = ctypes.c_longlong()
+    #rv :bytes = _lsdelta(
+    #    a.encode('UTF-8') if isinstance(a, str) else a,
+    #    b.encode('UTF-8') if isinstance(b, str) else b,
+    #    delta )
+    #if ord(rv):
+    #    raise RuntimeError(os.strerror(ctypes.get_errno()))
+    #return delta.value
