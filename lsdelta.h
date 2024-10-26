@@ -21,6 +21,9 @@
  * along with this program. If not, see https://www.gnu.org/licenses/
  */
 
+#include <stdbool.h>
+#include <gmp.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -33,17 +36,13 @@ extern "C" {
  * For example, the delta between "1035.349" and "1035.35" is -1,
  * and the delta between "1035.110" and "1035.1" is 10.
  *
- * Please be aware that `long long` typically ranges from
- * -9,223,372,036,854,775,808 to +9,223,372,036,854,775,807
- * and this function is therefore limited to that range.
+ * `delta` must be a pointer to a previously initialized `mpz_t`.
  *
- * On success, returns zero (0) and stores the result in the
- * argument `delta`; on failure, returns a negative value
+ * On success, returns true and stores the result in the
+ * argument `delta`; on failure, returns false
  * (the value of `delta` is undefined in this case).
- * Currently should not return positive values, but callers
- * wishing to play it safe can treat them as errors as well.
  */
-char lsdelta(const char *a, const char *b, long long *delta);
+bool lsdelta(const char *a, const char *b, mpz_t *delta);
 
 #ifdef __cplusplus
 }

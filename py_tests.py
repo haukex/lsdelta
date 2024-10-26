@@ -35,7 +35,7 @@ def main() -> None:
         if isinstance(test, str):
             continue
         assert ( isinstance(test, list) and len(test)==3 and isinstance(test[0], str) and isinstance(test[1], str)
-            and (test[2] is None or isinstance(test[2],int)) ), test
+            and ( test[2] is None or isinstance(test[2], str) ) ), test
         for x in test[0:2]:
             assert '"' not in x and '\\' not in x, test
         if test[2] is None:
@@ -46,7 +46,7 @@ def main() -> None:
             else:
                 raise RuntimeError(f"Failed test ({test[0]!r},{test[1]!r}) == error")
         else:
-            if lsdelta(test[0], test[1]) == test[2]:
+            if lsdelta(test[0], test[1]) == int(test[2]):
                 print(f"({test[0]!r},{test[1]!r}) == {test[2]!r} => PASS")
             else:
                 raise RuntimeError(f"Failed test ({test[0]!r},{test[1]!r}) == {test[2]!r}")

@@ -21,7 +21,6 @@
 #include "lsdelta.h"
 #include <string.h>
 #include <assert.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <errno.h>
 #ifdef LSDELTA_DEBUG
@@ -31,8 +30,8 @@
 /* Checks the string for valid formatting and returns
  * the number of digits after the decimal point.
  *
- * Returns `false` on success; sets `errno` and returns
- * `true` on failure.
+ * Returns `true` on success; sets `errno` and returns
+ * `false` on failure.
  */
 bool _get_dec_dig(const char *str, size_t *cnt) {
 	bool found_dec = false;
@@ -42,12 +41,12 @@ bool _get_dec_dig(const char *str, size_t *cnt) {
 		if (strchr(i ? ".0123456789" : "+-.0123456789", str[i])==NULL) {
 			// this character is not in the set of valid characters
 			errno = EINVAL;
-			return true;
+			return false;
 		}
 		if (str[i]=='.') {  // found *a* decimal point
 			if (found_dec) {  // more than one decimal point
 				errno = EINVAL;
-				return true;
+				return false;
 			}
 			found_dec = true;
 		}
@@ -60,29 +59,31 @@ bool _get_dec_dig(const char *str, size_t *cnt) {
 	}
 	if (dig_cnt<1) {  // no digits seen at all! (empty string, "+", "-.", etc.)
 		errno = EINVAL;
-		return true;
+		return false;
 	}
 #ifdef LSDELTA_DEBUG
 	printf("Digits: <<%s>> => %ld\n", str, *cnt);
 #endif
-	return false;  // success
+	return true;  // success
 }
 
 /* Removes the decimal point from the string, pads it the
  * specified amount, and converts the result to a number.
  *
- * IMPORTANT: Assumes the string has been checked for valid
- * formatting by `_get_dec_dig`.
+ * **IMPORTANT:** Assumes the string has been checked for valid
+ * formatting by `_get_dec_dig` and that `num` is a pointer to
+ * an *uninitialized* `mpz_t`.
  *
- * Returns `false` on success; sets `errno` and returns
- * `true` on failure.
+ * Returns `true` on success; sets `errno` and returns
+ * `false` on failure. The caller does not need to `mpz_clear`
+ * in the latter case.
 */
-char _convert(const char *str, size_t pad, long long *num) {
+bool _convert(const char *str, size_t pad, mpz_t *num) {
 	const size_t len = strlen(str);
 	// initialize the output string
 	const size_t new_len = len+pad;
 	char *out = (char*) malloc(new_len+1);  // +1 NUL!
-	if (out==NULL) return true;  // malloc fail (sets errno)
+	if (out==NULL) return false;  // malloc fail (sets errno)
 	memset(out, 0, new_len+1);  // +1 NUL!
 #ifdef LSDELTA_DEBUG
 	printf("Convert: <<%s>> (new_len=%ld) ", str, new_len); fflush(stdout);
@@ -103,54 +104,52 @@ char _convert(const char *str, size_t pad, long long *num) {
 	printf("=> <<%s>> ", out); fflush(stdout);
 #endif
 	// convert to number
-	char *endptr;
-	errno = 0;  // to detect error conditions in the following
-	*num = strtoll(out, &endptr, 10);
-	// check for error conditions
-	if (endptr == str) errno = EINVAL;  // no digits were found
-	else if (*endptr != '\0') errno = EINVAL; // invalid characters found
-	const bool rv = !!errno;  // store for below
-	// done!
-	free(out);  // documented to preserve errno on glibc 2.33+, but we don't rely on that
-#ifdef LSDELTA_DEBUG
-	printf("=> %lld\n", *num);
-#endif
-	return rv;
-}
-
-char lsdelta(const char *a, const char *b, long long *delta) {
-	if (a==NULL || b==NULL) {
+	const int init_rv = mpz_init_set_str(*num, out, 10);
+	free(out);  // free immediately to avoid dealing with that later
+	if (init_rv) {
+		mpz_clear(*num);
 		errno = EINVAL;
-		return -1;
+		return false;
 	}
 #ifdef LSDELTA_DEBUG
+	printf("=> ");
+	mpz_out_str(stdout, 10, *num);
 	printf("\n");
+#endif
+	return true;
+}
+
+bool lsdelta(const char *a, const char *b, mpz_t *delta) {
+	if (a==NULL || b==NULL) {
+		errno = EINVAL;
+		return false;
+	}
+#ifdef LSDELTA_DEBUG
+	printf("\n##### lsdelta(\"%s\", \"%s\")\n", a, b);
 #endif
 	// check strings and get number of digits after decimal point
 	size_t a_cnt;
-	if (_get_dec_dig(a, &a_cnt)) return -1;
+	if (!_get_dec_dig(a, &a_cnt)) return false;
 	size_t b_cnt;
-	if (_get_dec_dig(b, &b_cnt)) return -1;
+	if (!_get_dec_dig(b, &b_cnt)) return false;
 	// convert the strings to numbers
-	long long a_num;
-	if (_convert(a, b_cnt>a_cnt ? b_cnt-a_cnt : 0, &a_num)) return -1;
-	long long b_num;
-	if (_convert(b, a_cnt>b_cnt ? a_cnt-b_cnt : 0, &b_num)) return -1;
-	// do the delta
-#ifndef __has_builtin
-	#define __has_builtin(x) 0
-#endif
-#if __has_builtin(__builtin_ssubll_overflow)
-	// this should be the case on GCC and Clang
-	// https://gcc.gnu.org/onlinedocs/gcc/Integer-Overflow-Builtins.html
-	// https://clang.llvm.org/docs/LanguageExtensions.html#checked-arithmetic-builtins
-	if (__builtin_ssubll_overflow(a_num, b_num, delta)) {
-		errno = EOVERFLOW;
-		return -1;
+	mpz_t a_num;
+	if (!_convert(a, b_cnt>a_cnt ? b_cnt-a_cnt : 0, &a_num))
+		return false;
+	mpz_t b_num;
+	if (!_convert(b, a_cnt>b_cnt ? a_cnt-b_cnt : 0, &b_num)) {
+		mpz_clear(a_num);
+		return false;
 	}
-#else
-	#warning "This build of lsdelta does not check for overflows!"
-	*delta = a_num - b_num;
+	// do the delta
+	mpz_sub(*delta, a_num, b_num);
+	//*delta = a_num - b_num;
+	mpz_clear(a_num);
+	mpz_clear(b_num);
+#ifdef LSDELTA_DEBUG
+	printf("Result: ");
+	mpz_out_str(stdout, 10, *delta);
+	printf("\n");
 #endif
-	return 0;
+	return true;
 }

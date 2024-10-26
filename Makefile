@@ -7,7 +7,8 @@ CC = gcc
 local_CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Werror
 DEST_LIB ?= /usr/local/lib
 DEST_INC ?= /usr/local/include
-LINK_LIBS = -Wl,-rpath=$(shell pwd) -L. -llsdelta
+# sudo apt install libgmp-dev
+LINK_LIBS = -Wl,-rpath=$(shell pwd) -L. -llsdelta -lgmp
 
 all: liblsdelta.so
 
@@ -32,13 +33,19 @@ clean:
 	rm -f liblsdelta.so test_lsdelta
 
 
-.PHONY: py_installdeps py_build py_clean
+.PHONY: py_installdeps py_build py_clean py_test
 
 py_installdeps:
 	pip install --upgrade --upgrade-strategy=eager pip wheel setuptools build
 
 py_build:
 	python -m build --sdist
+
+py_test: py_build
+	python -m venv .venv_test
+	.venv_test/bin/python -m pip install dist/*.tar.gz
+	.venv_test/bin/python py_tests.py
+	rm -r .venv_test
 
 py_clean:
 	rm -rf dist *.egg-info
