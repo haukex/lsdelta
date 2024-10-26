@@ -25,3 +25,8 @@ jobs:
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
+  # Afterwards:
+  # - Go to https://github.com/haukex/lsdelta/actions and select the most recent run
+  # - Download the four artefact files and extract them into `dist/`
+  # - python -m twine check dist/*{.tar.gz,.whl}
+  # - python -m twine upload dist/*{.tar.gz,.whl}
