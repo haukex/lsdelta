@@ -33,8 +33,6 @@ def main() -> None:
             '\tconst char *a;\n' '\tconst char *b;\n' '\tconst char *o;\n'
             '};\n' 'struct _struct_test TEST[NUM_TESTS] = {', file=ofh)
         for test in tests:
-            if isinstance(test, str):
-                continue
             assert ( isinstance(test, list) and len(test)==3 and isinstance(test[0], str) and isinstance(test[1], str)
                 and ( test[2] is None or isinstance(test[2], str) ) ), test
             for x in test[0:2]:

@@ -30,7 +30,7 @@ from typing import Union
 #_lsdelta.restype = ctypes.c_char
 
 def lsdelta(a :Union[str,bytes], b :Union[str,bytes]) -> int:
-    raise NotImplementedError()
+    raise NotImplementedError()  # pragma: no cover
     #delta = ctypes.c_longlong()
     #rv :bytes = _lsdelta(
     #    a.encode('UTF-8') if isinstance(a, str) else a,

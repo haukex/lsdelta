@@ -1,11 +1,14 @@
 LSDelta - Least Significant Digit Delta
 =======================================
 
-This is pretty simplistic; it's more of a practice project.
+This is pretty simplistic; it's more of a practice/test project.
 
-See `lsdelta.h` for documentation of the pure C version.
+See `c_gmp/lsdelta.h` for documentation of the pure C version.
+It can be built with its `Makefile`.
 
-Can be built via the `Makefile`.
+To run the main tests (`make` in the main directory),
+you first need to install the Python/C implementation
+in `py_c`; see its `Makefile`.
 
 TODO: Could write more tests in `lsdelta_tests.json`.
 

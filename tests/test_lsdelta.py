@@ -33,11 +33,13 @@ class LSDeltaTestCase(unittest.TestCase):
             with (Path(__file__).resolve().parent.parent/'lsdelta_tests.json').open(encoding='ASCII') as ifh:
                 tests = [ t for t in json.load(ifh) if not isinstance(t, str) ]
             for test in tests:
-                if isinstance(test, str):
-                    continue
                 if test[2] is None:
                     with self.assertRaises(ValueError):
                         uut.lsdelta(test[0], test[1])
                 else:
-                    self.assertEqual( uut.lsdelta(test[0], test[1]), int(test[2]),
-                                     f"{uut.__name__}.lsdelta({test[0]!r}, {test[1]!r}) == {test[2]}" )
+                    t0, t1 = test[0:2]
+                    t2 = int(test[2])
+                    self.assertEqual( uut.lsdelta(t0, t1), t2, f"{uut.__name__}.lsdelta({t0!r}, {t1!r}) == {t2!r}" )
+                    t0 = test[0].encode('ASCII')
+                    t1 = test[1].encode('ASCII')
+                    self.assertEqual( uut.lsdelta(t0, t1), t2, f"{uut.__name__}.lsdelta({t0!r}, {t1!r}) == {t2!r}" )
