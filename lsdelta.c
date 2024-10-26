@@ -84,7 +84,6 @@ bool _convert(const char *str, size_t pad, mpz_t *num) {
 	const size_t new_len = len+pad;
 	char *out = (char*) malloc(new_len+1);  // +1 NUL!
 	if (out==NULL) return false;  // malloc fail (sets errno)
-	memset(out, 0, new_len+1);  // +1 NUL!
 #ifdef LSDELTA_DEBUG
 	printf("Convert: <<%s>> (new_len=%ld) ", str, new_len); fflush(stdout);
 #endif
@@ -100,6 +99,8 @@ bool _convert(const char *str, size_t pad, mpz_t *num) {
 		assert(o<new_len);
 		out[o++] = '0';
 	}
+	assert(o<=new_len);  // ok because of new_len+1 above
+	out[o] = '\0';
 #ifdef LSDELTA_DEBUG
 	printf("=> <<%s>> ", out); fflush(stdout);
 #endif

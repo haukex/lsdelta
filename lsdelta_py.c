@@ -66,7 +66,6 @@ PyObject *_convert(const char *str, const Py_ssize_t len, Py_ssize_t pad) {
 		PyErr_SetString(PyExc_MemoryError, "malloc failed");
 		return NULL;
 	}
-	memset(out, 0, new_len+1);  // +1 NUL!
 
 #ifdef LSDELTA_DEBUG
 	printf("Convert: <<%s>> (new_len=%ld) ", str, new_len); fflush(stdout);
@@ -83,6 +82,8 @@ PyObject *_convert(const char *str, const Py_ssize_t len, Py_ssize_t pad) {
 		assert(o<new_len);
 		out[o++] = '0';
 	}
+	assert(o<=new_len);  // ok because of new_len+1 above
+	out[o] = '\0';
 #ifdef LSDELTA_DEBUG
 	printf("=> <<%s>>\n", out); fflush(stdout);
 #endif
