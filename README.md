@@ -1,18 +1,22 @@
 LSDelta - Least Significant Digit Delta
 =======================================
 
-This is pretty simplistic; it's more of a practice/test project.
+`lsdelta` is a simple little library that provides a single function:
 
-See `c_gmp/lsdelta.h` for documentation of the pure C version.
-It can be built with its `Makefile`.
+**`lsdelta(a :str|bytes, b :str|bytes) -> int`**
 
-To run the main tests (`make` in the main directory),
-you first need to install the Python/C implementation
-in `py_c`; see its `Makefile`.
+This function takes two decimal numbers stored as strings,
+pads them both to the same length after the decimal point,
+and then removes the decimal point and subtracts them,
+giving you the difference in their least significant digits.
 
-Some benchmark results are at the end of `tests/test_lsdelta.py`.
-
-TODO: Could write more tests in `lsdelta_tests.json`.
+    >>> from lsdelta import lsdelta
+    >>> lsdelta("399.999","400")
+    -1
+    >>> lsdelta("1035.349", "1035.35")
+    -1
+    >>> lsdelta("1035.110", "1035.1")
+    10
 
 
 Author, Copyright, and License

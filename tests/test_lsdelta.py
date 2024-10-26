@@ -21,54 +21,28 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see https://www.gnu.org/licenses/
 """
 import json
-import time
-import timeit
+import doctest
 import unittest
 from pathlib import Path
-import lsdelta
-import lsdelta_pp
+from lsdelta import lsdelta
+
+def load_tests(loader, tests, ignore):  # pylint: disable=unused-argument
+    tests.addTests(doctest.DocFileSuite(str(Path(__file__).resolve().parent.parent/'README.md'), module_relative=False))
+    return tests
 
 class LSDeltaTestCase(unittest.TestCase):
 
     def test_lsdelta(self):
-        for uut in (lsdelta.lsdelta, lsdelta_pp.lsdelta, lsdelta_pp.lsdelta2):
-            with (Path(__file__).resolve().parent.parent/'lsdelta_tests.json').open(encoding='ASCII') as ifh:
-                tests = [ t for t in json.load(ifh) if not isinstance(t, str) ]
-            for test in tests:
-                if test[2] is None:
-                    with self.assertRaises(ValueError):
-                        uut(test[0], test[1])
-                else:
-                    t0, t1 = test[0:2]
-                    t2 = int(test[2])
-                    self.assertEqual( uut(t0, t1), t2, f"{uut.__module__}.{uut.__name__}({t0!r}, {t1!r}) == {t2!r}" )
-                    t0 = test[0].encode('ASCII')
-                    t1 = test[1].encode('ASCII')
-                    self.assertEqual( uut(t0, t1), t2, f"{uut.__module__}.{uut.__name__}({t0!r}, {t1!r}) == {t2!r}" )
-
-    def test_times(self):
-        print()
-
-        loops = 1000000
-        tm_ns_cp = timeit.Timer('lsdelta("123.45","123.4449")', 'from lsdelta import lsdelta',
-            timer=time.perf_counter_ns).timeit(loops)
-        print(f"lsdelta:     {loops*1e9/tm_ns_cp:12.1f} loops/s")
-
-        loops = 100000
-        tm_ns_pp = timeit.Timer('lsdelta("123.45","123.4449")', 'from lsdelta_pp import lsdelta',
-            timer=time.perf_counter_ns).timeit(loops)
-        print(f"lsdelta_pp:  {loops*1e9/tm_ns_pp:12.1f} loops/s")
-
-        # note: hackishly adjusted the following for the difference in loops above
-        print(f"C Python is {tm_ns_pp*10/tm_ns_cp:.1f}x faster than pure Python")
-        # => currently roughly 7x faster
-        # NOTE I also tested lsdelta_pp.lsdelta doing everything with `bytes` instead of `str`, didn't make a significant difference
-        # => c_gmp/test_lsdelta.c reports 6751180.6 loops/s,
-        # while the C/Python version reports 5644736.8 loops/s,
-        # which is "only" ~1.2x faster (and doesn't include the conversion from GMP's mpz_t to a Python int that would be needed).
-        # However, on a different machine, the difference was more like 1.5x
-
-        tm_ns_pp2 = timeit.Timer('lsdelta2("123.45","123.4449")', 'from lsdelta_pp import lsdelta2',
-            timer=time.perf_counter_ns).timeit(loops)
-        print(f"lsdelta_pp2: {loops*1e9/tm_ns_pp2:12.1f} loops/s")
-        # => slower than the above
+        with (Path(__file__).resolve().parent/'lsdelta_tests.json').open(encoding='ASCII') as ifh:
+            tests = [ t for t in json.load(ifh) if not isinstance(t, str) ]
+        for test in tests:
+            if test[2] is None:
+                with self.assertRaises(ValueError):
+                    lsdelta(test[0], test[1])
+            else:
+                t0, t1 = test[0:2]
+                t2 = int(test[2])
+                self.assertEqual( lsdelta(t0, t1), t2, f"lsdelta({t0!r}, {t1!r}) == {t2!r}" )
+                t0 = test[0].encode('ASCII')
+                t1 = test[1].encode('ASCII')
+                self.assertEqual( lsdelta(t0, t1), t2, f"lsdelta({t0!r}, {t1!r}) == {t2!r}" )
