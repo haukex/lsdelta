@@ -24,7 +24,7 @@ classifiers = [
 
 # the error "Additional properties are not allowed" from "Even Better TOML" can be ignored here:
 [tool.setuptools]
-packages = []
+packages = ["lsdelta"]
 ext-modules = [
     { name = "lsdelta", sources = ["lsdelta_py.c"] },
 ]

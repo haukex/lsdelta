@@ -6,7 +6,7 @@ py_code_locs = c_gmp/*.py py_c/*.py tests
 # Hint: $(filter-out whatever,$(py_code_locs))
 # Remember to keep in sync with GitHub Actions workflows:
 requirement_txts = dev/requirements.txt
-perm_checks = ./* .gitignore .vscode .github
+perm_checks = ./* .gitignore .vscode
 
 # The user can change the following on the command line:
 PYTHON3BIN = python
