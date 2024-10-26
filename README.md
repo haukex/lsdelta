@@ -10,6 +10,8 @@ To run the main tests (`make` in the main directory),
 you first need to install the Python/C implementation
 in `py_c`; see its `Makefile`.
 
+Some benchmark results are at the end of `tests/test_lsdelta.py`.
+
 TODO: Could write more tests in `lsdelta_tests.json`.
 
 

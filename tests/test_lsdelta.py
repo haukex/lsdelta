@@ -62,6 +62,9 @@ class LSDeltaTestCase(unittest.TestCase):
         print(f"C Python is {tm_ns_pp/tm_ns_cp:.1f}x faster than pure Python")
         # => currently roughly 7x faster
         # NOTE I also tested lsdelta_pp.lsdelta doing everything with `bytes` instead of `str`, didn't make a significant difference
+        # => c_gmp/test_lsdelta.c reports 6751180.6 loops/s,
+        # while the C/Python version reports 5644736.8 loops/s,
+        # which is "only" ~1.2x faster (and doesn't include the conversion from GMP's mpz_t to a Python int that would be needed).
 
         tm_ns_pp2 = timeit.Timer('lsdelta2("123.45","123.4449")', 'from lsdelta_pp import lsdelta2',
             timer=time.perf_counter_ns).timeit(loops)

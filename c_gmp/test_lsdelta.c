@@ -19,10 +19,14 @@
  * along with this program. If not, see https://www.gnu.org/licenses/
  */
 
+#define _XOPEN_SOURCE 600  // for time.h
 #include "lsdelta.h"
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
+#include <errno.h>
+#include <stdint.h>
 #define UNUSED(x) (void)(x)
 
 #include "test_lsdelta_tests.inc.c"
@@ -73,5 +77,28 @@ int main(int argc, char** argv) {
 	}
 	if ( fails>0 ) printf("%ld FAILURES\n", fails);
 	else printf("ALL %d PASS\n", NUM_TESTS);
+
+	// time test
+	const size_t LOOPS = 1000000;
+	mpz_t d2;
+	mpz_init(d2);
+	struct timespec start;
+	if (clock_gettime(CLOCK_MONOTONIC, &start)) {
+		printf("clock_gettime: %s\n", strerror(errno));
+		return 2;
+	}
+	printf("start: %10jd.%09ld\n", (intmax_t) start.tv_sec, start.tv_nsec);
+	for ( size_t i=0; i<LOOPS ; i++ ) {
+		lsdelta("123.45","123.4449", &d2);
+	}
+	struct timespec end;
+	if (clock_gettime(CLOCK_MONOTONIC, &end)) {
+		printf("clock_gettime: %s\n", strerror(errno));
+		return 2;
+	}
+	mpz_clear(d2);
+	printf("  end: %10jd.%09ld\n", (intmax_t) end.tv_sec, end.tv_nsec);
+	unsigned long long nsec = end.tv_nsec + 1000000000LL*(end.tv_sec - start.tv_sec) - start.tv_nsec;
+	printf(" = %lldns = %12.1f loops/s\n", nsec, ((double)LOOPS)*1e9/(float)nsec);
 	return fails ? 1 : 0;
 }
