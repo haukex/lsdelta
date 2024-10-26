@@ -51,3 +51,36 @@ def lsdelta(a :Union[str,bytes], b :Union[str,bytes]) -> int:
     b = b.replace(".","")
     # convert to int and return delta
     return int(a) - int(b)
+
+# the following implementation uses the same logic as the C Python version
+
+def _get_dec_dig(s :str) -> int:
+    found :bool = False
+    dig_cnt = 0
+    cnt = 0
+    for i,c in enumerate(s):
+        if c not in ('.0123456789' if i else '+-.0123456789'):
+            raise ValueError("illegal character in decimal number")
+        if c=='.':
+            if found:
+                raise ValueError("more than one decimal point")
+            found = True
+        else:
+            if c not in '+-':
+                dig_cnt += 1
+            if found:
+                cnt += 1
+    if not dig_cnt:
+        raise ValueError("no digits in number")
+    return cnt
+
+def lsdelta2(a :Union[str,bytes], b :Union[str,bytes]) -> int:
+    if isinstance(a, bytes):
+        a = a.decode('UTF-8')
+    if isinstance(b, bytes):
+        b = b.decode('UTF-8')
+    a_cnt = _get_dec_dig(a)
+    b_cnt = _get_dec_dig(b)
+    return (
+        int( a.replace('.','') + "0"*(b_cnt-a_cnt if b_cnt>a_cnt else 0) ) -
+        int( b.replace('.','') + "0"*(a_cnt-b_cnt if a_cnt>b_cnt else 0) ) )
