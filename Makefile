@@ -11,8 +11,9 @@ perm_checks = ./* .gitignore .vscode .github
 # The user can change the following on the command line:
 PYTHON3BIN = python
 
-.PHONY: help tasklist installdeps test build-check
+.PHONY: help tasklist installdeps test build-check lint
 .PHONY: smoke-checks nix-checks shellcheck ver-checks other-checks coverage unittest
+lint:   smoke-checks nix-checks shellcheck ver-checks other-checks ## Run full linting
 test:   smoke-checks nix-checks shellcheck ver-checks other-checks coverage  ## Run all tests
 # Reminder: If the `test` target changes, make the appropriate changes to .github/workflows/tests.yml
 
@@ -38,7 +39,7 @@ tasklist:	## List open tasks.
 
 installdeps:  ## Install project dependencies
 	@set -euxo pipefail
-	$(PYTHON3BIN) -m pip install --upgrade --upgrade-strategy=eager --no-warn-script-location pip wheel
+	$(PYTHON3BIN) -m pip install --upgrade --upgrade-strategy=eager --no-warn-script-location pip
 	$(PYTHON3BIN) -m pip install --upgrade --upgrade-strategy=eager --no-warn-script-location $(foreach x,$(requirement_txts),-r $(x))
 	# $(PYTHON3BIN) -m pip install --editable .  # for modules/packages
 	# other examples: git lfs install / npm ci
@@ -66,9 +67,10 @@ nix-checks:  ## Checks that depend on a *NIX OS/FS
 			test -z "$$( find . \( -type d -name '.venv*' -prune \) -o \( -iname '*.sh' ! -executable -print \) )"
 		fi
 	fi
-	$(PYTHON3BIN) -m igbpyutils.dev.script_vs_lib $${unreliable_perms:+"--exec-git"} --notice $(py_code_locs)
-	# exclusions to the above can be done via:
-	# find $(py_code_locs) -path '*/exclude/me.py' -o -type f -iname '*.py' -exec py-check-script-vs-lib --notice '{}' +
+	# exclusions to the following can be done by adding a line `-path '*/exclude/me.py' -o \` after `find`
+	find $(py_code_locs) \
+		-type f -iname '*.py' -exec \
+		$(PYTHON3BIN) -m igbpyutils.dev.script_vs_lib $${unreliable_perms:+"--exec-git"} --notice '{}' +
 
 shellcheck:  ## Run shellcheck
 	@set -euxo pipefail

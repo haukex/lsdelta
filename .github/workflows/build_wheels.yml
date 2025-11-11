@@ -1,8 +1,10 @@
 name: Build Python Wheels
 on:
   push:
+    # only on commits, not on tags
     branches:
       - '**'
+  workflow_dispatch:
 # https://cibuildwheel.pypa.io/en/stable/setup/#github-actions
 jobs:
   build_wheels:
@@ -10,23 +12,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        # macos-15 is arm64 (M1): https://docs.github.com/en/actions/reference/runners/github-hosted-runners#standard-github-hosted-runners-for-public-repositories
+        os: [ubuntu-latest, windows-latest, macos-15, macos-15-intel]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v3.2.1
         env:
           # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
           CIBW_BUILD: cp*
           # https://cibuildwheel.pypa.io/en/stable/options/#test-command
           CIBW_TEST_COMMAND: python -X dev -X warn_default_encoding -W error -m unittest discover -vs {package}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
   # Afterwards:
   # - Go to https://github.com/haukex/lsdelta/actions and select the most recent run
-  # - Download the four artefact files and extract them into `dist/`
+  # - Download the (several) artefact files and extract them into `dist/`
   # - python -m twine check dist/*{.tar.gz,.whl}
   # - python -m twine upload dist/*{.tar.gz,.whl}
