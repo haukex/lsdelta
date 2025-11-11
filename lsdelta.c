@@ -146,7 +146,7 @@ static PyMethodDef lsdelta_methods[] = {
 
 static struct PyModuleDef_Slot module_slots[] = {
 #if PY_VERSION_HEX >= 0x030D0000
-    {Py_mod_gil, Py_MOD_GIL_REQUIRED},
+    {Py_mod_gil, Py_MOD_GIL_USED},
 #endif
     {0, NULL}  // Sentinel
 };
