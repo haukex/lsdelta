@@ -107,7 +107,7 @@ lsdelta(PyObject *Py_UNUSED(self), PyObject *args) {
 	Py_ssize_t b_len;
 
 	// https://docs.python.org/3.10/c-api/arg.html#strings-and-buffers
-    if (!PyArg_ParseTuple(args, "s#s#", &a, &a_len, &b, &b_len))
+	if (!PyArg_ParseTuple(args, "s#s#", &a, &a_len, &b, &b_len))
 		return NULL;
 
 	// check strings and get number of digits after decimal point
@@ -132,34 +132,36 @@ lsdelta(PyObject *Py_UNUSED(self), PyObject *args) {
 	PyObject* rv = PyNumber_Subtract(a_num, b_num);
 	Py_DECREF(a_num);
 	Py_DECREF(b_num);
-    return rv;
+	return rv;
 }
 
 static PyMethodDef lsdelta_methods[] = {
-    {"lsdelta",  lsdelta, METH_VARARGS,
+	{"lsdelta",  lsdelta, METH_VARARGS,
 	"This function takes two decimal numbers stored as strings, \
 	pads them both to the same length after the decimal point, \
 	and then removes the decimal point and subtracts them, \
 	giving you the difference in their least significant digits."},
-    {NULL, NULL, 0, NULL}  // Sentinel
+	{NULL, NULL, 0, NULL}  // Sentinel
 };
 
 static struct PyModuleDef_Slot module_slots[] = {
 #if PY_VERSION_HEX >= 0x030D0000
-    {Py_mod_gil, Py_MOD_GIL_USED},
+	{Py_mod_gil, Py_MOD_GIL_USED},
 #endif
-    {0, NULL}  // Sentinel
+	{0, NULL}  // Sentinel
 };
 
 static struct PyModuleDef lsdelta_module = {
-    .m_base = PyModuleDef_HEAD_INIT,
-    .m_name = "lsdelta",
-    .m_size = 0,
-    .m_methods = lsdelta_methods,
+	.m_base = PyModuleDef_HEAD_INIT,
+	.m_name = "lsdelta",
+	.m_size = 0,
+	.m_methods = lsdelta_methods,
 	.m_slots = module_slots
 };
 
 PyMODINIT_FUNC
 PyInit_lsdelta(void) {
-    return PyModuleDef_Init(&lsdelta_module);
+	return PyModuleDef_Init(&lsdelta_module);
 }
+
+/* vim: set ts=4 sw=4 noexpandtab : */
