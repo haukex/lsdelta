@@ -32,6 +32,7 @@ jobs:
           path: ./wheelhouse/*.whl
   # Afterwards:
   # - Go to https://github.com/haukex/lsdelta/actions and select the most recent run
-  # - Download the (several) artefact files and extract them into `dist/`
+  # - Download the (several) artefact files and extract them into `dist/`,
+  #   alongside the locally built .tar.gz package
   # - python -m twine check dist/*{.tar.gz,.whl}
   # - python -m twine upload dist/*{.tar.gz,.whl}

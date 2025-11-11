@@ -1,4 +1,4 @@
-/** ***** lsdelta_py.c *****
+/** ***** lsdelta.c *****
  *
  * Copyright (c) 2024 Hauke Daempfling (haukex@zero-g.net)
  * at the Leibniz Institute of Freshwater Ecology and Inland Fisheries (IGB),
