@@ -144,15 +144,22 @@ static PyMethodDef lsdelta_methods[] = {
     {NULL, NULL, 0, NULL}  // Sentinel
 };
 
+static struct PyModuleDef_Slot module_slots[] = {
+#if PY_VERSION_HEX >= 0x030D0000
+    {Py_mod_gil, Py_MOD_GIL_REQUIRED},
+#endif
+    {0, NULL}  // Sentinel
+};
+
 static struct PyModuleDef lsdelta_module = {
-    PyModuleDef_HEAD_INIT,
-    "lsdelta",  // name of module
-    NULL,       // module documentation, may be NULL
-    -1,         // -1 if the module keeps state in global variables.
-    lsdelta_methods
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "lsdelta",
+    .m_size = 0,
+    .m_methods = lsdelta_methods,
+	.m_slots = module_slots
 };
 
 PyMODINIT_FUNC
 PyInit_lsdelta(void) {
-    return PyModule_Create(&lsdelta_module);
+    return PyModuleDef_Init(&lsdelta_module);
 }
