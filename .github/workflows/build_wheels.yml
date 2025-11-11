@@ -20,7 +20,10 @@ jobs:
         uses: pypa/cibuildwheel@v3.2.1
         env:
           # https://cibuildwheel.pypa.io/en/stable/options/#build-skip
+          # Only build on CPython
           CIBW_BUILD: cp*
+          # Disable free-threading builds on all platforms
+          CIBW_SKIP: cp3??t-*
           # https://cibuildwheel.pypa.io/en/stable/options/#test-command
           CIBW_TEST_COMMAND: python -X dev -X warn_default_encoding -W error -m unittest discover -vs {package}
       - uses: actions/upload-artifact@v5
