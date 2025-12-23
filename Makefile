@@ -23,7 +23,7 @@ test:   smoke-checks nix-checks shellcheck ver-checks coverage  ## Run all tests
 SHELL = /bin/bash
 .ONESHELL:  # each recipe is executed as a single script
 
-build-check: smoke-checks
+build-check: smoke-checks   ## Build the package and test it.
 	@set -euxo pipefail
 	[[ "$$OSTYPE" =~ linux.* ]]
 	$(PYTHON3BIN) -m build --sdist
