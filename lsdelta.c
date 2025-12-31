@@ -23,6 +23,8 @@
 #include <Python.h>
 #include <stdbool.h>
 
+// spell: ignore DECREF
+
 //#define LSDELTA_DEBUG
 
 bool _get_dec_dig(const char *str, const Py_ssize_t len, Py_ssize_t *cnt) {
@@ -61,9 +63,9 @@ bool _get_dec_dig(const char *str, const Py_ssize_t len, Py_ssize_t *cnt) {
 PyObject *_convert(const char *str, const Py_ssize_t len, Py_ssize_t pad) {
 
 	// initialize the output string
-	// https://docs.python.org/3.10/c-api/memory.html#raw-memory-interface
+	// https://docs.python.org/3.10/c-api/memory.html#memory-interface
 	const Py_ssize_t new_len = len+pad;
-	char *out = (char*) PyMem_RawMalloc(new_len+1);  // +1 NUL!
+	char *out = (char*) PyMem_Malloc(new_len+1);  // +1 NUL!
 	if (out==NULL) {
 		PyErr_SetString(PyExc_MemoryError, "malloc failed");
 		return NULL;
@@ -93,7 +95,7 @@ PyObject *_convert(const char *str, const Py_ssize_t len, Py_ssize_t pad) {
 	// convert to number
 	// https://docs.python.org/3.10/c-api/long.html#c.PyLong_FromString
 	PyObject* num = PyLong_FromString(out, NULL, 10);
-	PyMem_RawFree(out);  // free this immediately to make error handling easier
+	PyMem_Free(out);  // free this immediately to make error handling easier
 	if (num==NULL) return NULL;
 
 	return num;
